@@ -1,0 +1,43 @@
+<h3>Hi <%= @user.name %> !</h3>
+
+<form action="/ideas" method="post">
+  <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token%>">
+
+  <input type="text" name="idea[idea]" placeholder="Post something witty here...">
+
+  <button type="submit" value="Idea!">Idea!</button>
+
+</form>
+
+<% @idea.each do |i| %>
+<p><a href="/users/<%= i.user_id %>"><%= i.user.name%></a> says:</p>
+  <p><%= i.idea %></p>
+  <% query = Like.find_by user_id: current_user.id, idea_id: i.id %>
+  <% unless query %>
+  <form action="/likes" method="post">
+    <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token%>">
+    <input type="hidden" name="like[idea_id]" value="<%= i.id %>">
+    <button type="submit" value="Like">Like</button>
+  </form>
+  <% else %>
+  <form action="/likes/<%= i.id %>" method="post">
+    <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token%>">
+    <input type="hidden" name="_method" value="delete">
+    <input type="hidden" name="like[idea_id]" value="<%= i.id %>">
+    <button type="submit" value="Unlike">Unlike</button>
+  </form>
+  <% end %>
+  <a href="/ideas/<%= i.id %>">
+    <%= i.likes.count %> likes
+  </a>
+  <% if current_user.id == i.user_id %>
+    <form action="/ideas/<%= i.id %>" method="post">
+      <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token%>">
+      <input type="hidden" name="_method" value="delete">
+      <button type="submit" value="Delete">Delete</button>
+    </form>
+  <% end %>
+<% end %>
+
+
+
